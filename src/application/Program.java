@@ -38,6 +38,13 @@ public class Program {
 		for(Seller se : selist) {
 			System.out.println(se + "\n");
 		}
+		
+		System.out.println("\n===TEST 3: Seller FindAll===");
+		List<Seller> selist2 = sellerdao.findAll();
+		
+		for(Seller se : selist2) {
+			System.out.println(se + "\n");
+		}
 	}
 
 }

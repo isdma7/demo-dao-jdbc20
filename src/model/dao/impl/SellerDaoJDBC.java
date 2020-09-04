@@ -95,11 +95,6 @@ public class SellerDaoJDBC implements SellerDao {
 		return se;
 	}
 
-	@Override
-	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public List<Seller> findByDepartment(Department department) {
@@ -123,7 +118,48 @@ public class SellerDaoJDBC implements SellerDao {
 				
 				Department dep = map.get(rs.getInt("DepartmentId"));
 				
-				if(dep == null) { //se der nulo é porque nao existe ainda
+				if(dep == null) { //se der nulo é porque nao existe ainda entao eu crio para que na proxima vez ele va verificar ao map e veja que ja existe e entao não dará null na pesquisa
+					dep = instantiateDepartment(rs);
+					map.put(rs.getInt("DepartmentId"), dep);
+				}
+				
+				selist.add(instantiateSeller(rs, dep));
+
+				
+			}
+			return selist;// nao existia seller com este id
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatment(st);
+			DB.closeResultSet(rs);
+		}
+
+	}
+	
+	
+	public List<Seller> findAll() {
+
+		PreparedStatement st = null;
+		ResultSet rs = null;
+
+		try {
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "ORDER BY Name");
+
+			rs = st.executeQuery();
+
+			List<Seller> selist = new ArrayList<>();
+			
+			Map<Integer,Department> map = new HashMap<>();
+			
+			while (rs.next()) {
+				
+				Department dep = map.get(rs.getInt("DepartmentId"));
+				
+				if(dep == null) { //se der nulo é porque nao existe ainda entao eu crio para que na proxima vez ele va verificar ao map e veja que ja existe e entao não dará null na pesquisa
+									//se o dep existir entao aproveito ele, assim so teremos um objeto em memoria com os mesmos dados
 					dep = instantiateDepartment(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
