@@ -40,11 +40,19 @@ public class Program {
 		}
 		
 		System.out.println("\n===TEST 3: Seller FindAll===");
-		List<Seller> selist2 = sellerdao.findAll();
+		selist = sellerdao.findAll(); //reaproveito variavel ja que dados serão novos
 		
-		for(Seller se : selist2) {
+		for(Seller se : selist) {
 			System.out.println(se + "\n");
 		}
+		
+		System.out.println("\n===TEST 4: Seller Insert===");
+		
+		Seller newse = new Seller(null, "Greg", "greg@gmail.com", new Date(), 4000.0, dep);
+		
+		sellerdao.insert(newse);
+		
+		System.out.println("Inserted! New Id= " + newse.getId());
 	}
 
 }
