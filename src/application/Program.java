@@ -2,6 +2,7 @@ package application;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 import model.dao.DaoFactory;
 import model.dao.SellerDao;
@@ -29,7 +30,14 @@ public class Program {
 		Seller seller2 = sellerdao.findById(3);
 		
 		System.out.println(seller2);
-	
+		
+		System.out.println("\n===TEST 2: Seller FindByDepartment===");
+		Department dep = new Department(2, null);
+		List<Seller> selist = sellerdao.findByDepartment(dep);
+		
+		for(Seller se : selist) {
+			System.out.println(se + "\n");
+		}
 	}
 
 }

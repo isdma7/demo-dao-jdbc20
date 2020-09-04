@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import db.DB;
 import db.DbException;
@@ -53,9 +56,9 @@ public class SellerDaoJDBC implements SellerDao {
 			rs = st.executeQuery();
 
 			if (rs.next()) {
-				//Department dp = instantiateDepartment(rs);
+				Department dp = instantiateDepartment(rs);
 
-				Seller se = instantiateSeller(rs);
+				Seller se = instantiateSeller(rs, dp);
 
 				return se;
 			}
@@ -79,7 +82,7 @@ public class SellerDaoJDBC implements SellerDao {
 		return dp;
 	}
 
-	private Seller instantiateSeller(ResultSet rs) throws SQLException {
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
 		Seller se = new Seller();
 
 		se.setId(rs.getInt("Id"));
@@ -87,7 +90,7 @@ public class SellerDaoJDBC implements SellerDao {
 		se.setEmail(rs.getString("Email"));
 		se.setBirthDate(rs.getDate("BirthDate"));
 		se.setBaseSalary(rs.getDouble("BaseSalary"));
-		se.setDepartment(instantiateDepartment(rs));
+		se.setDepartment(dep);
 
 		return se;
 	}
@@ -96,6 +99,47 @@ public class SellerDaoJDBC implements SellerDao {
 	public List<Seller> findAll() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<Seller> findByDepartment(Department department) {
+
+		PreparedStatement st = null;
+		ResultSet rs = null;
+
+		try {
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "WHERE DepartmentId = ? " + "ORDER BY Name");
+
+			st.setInt(1, department.getId());
+			rs = st.executeQuery();
+
+			List<Seller> selist = new ArrayList<>();
+			
+			Map<Integer,Department> map = new HashMap<>();
+			
+			while (rs.next()) {
+				
+				Department dep = map.get(rs.getInt("DepartmentId"));
+				
+				if(dep == null) { //se der nulo é porque nao existe ainda
+					dep = instantiateDepartment(rs);
+					map.put(rs.getInt("DepartmentId"), dep);
+				}
+				
+				selist.add(instantiateSeller(rs, dep));
+
+				
+			}
+			return selist;// nao existia seller com este id
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatment(st);
+			DB.closeResultSet(rs);
+		}
+
 	}
 
 }
