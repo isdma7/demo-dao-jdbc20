@@ -13,72 +13,83 @@ import model.entities.Department;
 import model.entities.Seller;
 
 public class SellerDaoJDBC implements SellerDao {
-	
+
 	private Connection conn;
-	
-	public SellerDaoJDBC(Connection conn) { //assim tenho o conn sempre disponivel no SellerDaoJDBC
+
+	public SellerDaoJDBC(Connection conn) { // assim tenho o conn sempre disponivel no SellerDaoJDBC
 		this.conn = conn;
 	}
 
 	@Override
 	public void insert(Seller obj) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void update(Seller obj) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteById(Integer id) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public Seller findById(Integer id) {
-		
+
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		
+
 		try {
-			st = conn.prepareStatement("SELECT seller.*,department.Name as DepName " + 
-					"FROM seller INNER JOIN department " + 
-					"ON seller.DepartmentId = department.Id " + 
-					"WHERE seller.Id = ?");
-			
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "WHERE seller.Id = ?");
+
 			st.setInt(1, id);
 			rs = st.executeQuery();
-			
-			if(rs.next()) {
-				Department dp = new Department();
-				
-				dp.setId(rs.getInt("DepartmentId"));
-				dp.setName(rs.getString("DepName"));
-				
-				Seller se = new Seller();
-				
-				se.setId(rs.getInt("Id"));
-				se.setName(rs.getString("Name"));
-				se.setEmail(rs.getString("Email"));
-				se.setBirthDate(rs.getDate("BirthDate"));
-				se.setBaseSalary(rs.getDouble("BaseSalary"));
-				se.setDepartment(dp);
-				
+
+			if (rs.next()) {
+				//Department dp = instantiateDepartment(rs);
+
+				Seller se = instantiateSeller(rs);
+
 				return se;
 			}
 			return null;// nao existia seller com este id
-		}
-		catch(SQLException e){
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatment(st);
 			DB.closeResultSet(rs);
 		}
+	}
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		// Como eu estou a tratar a exceção ante de chamar esta função eu uso o throws
+		// para propagar a exceção
+
+		Department dp = new Department();
+
+		dp.setId(rs.getInt("DepartmentId"));
+		dp.setName(rs.getString("DepName"));
+		return dp;
+	}
+
+	private Seller instantiateSeller(ResultSet rs) throws SQLException {
+		Seller se = new Seller();
+
+		se.setId(rs.getInt("Id"));
+		se.setName(rs.getString("Name"));
+		se.setEmail(rs.getString("Email"));
+		se.setBirthDate(rs.getDate("BirthDate"));
+		se.setBaseSalary(rs.getDouble("BaseSalary"));
+		se.setDepartment(instantiateDepartment(rs));
+
+		return se;
 	}
 
 	@Override
@@ -86,5 +97,5 @@ public class SellerDaoJDBC implements SellerDao {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

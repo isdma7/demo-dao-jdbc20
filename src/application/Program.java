@@ -25,6 +25,7 @@ public class Program {
 		//nao faço um new SellerDaoJDBC eu simplesmente chamo a fabrica, dessa forma o meu program nao conhece a implementação, apenas conhece a interface
 		//maneira tambem de injetar dependencia sem explicitar a implementação
 		
+		System.out.println("===TEST 1: Seller FindById===");
 		Seller seller2 = sellerdao.findById(3);
 		
 		System.out.println(seller2);
