@@ -18,7 +18,7 @@ public class Program {
 	
 		System.out.println(obj);
 		
-		Seller seller = new Seller(1, "Pedro", "pedro@gmail.com", new Date(), 1000.0, obj);
+		Seller seller = new Seller(1, "Pedro", "pedro@gmail.com", new Date(), 2000.0, obj);
 		
 		System.out.println(seller);
 		
@@ -53,6 +53,16 @@ public class Program {
 		sellerdao.insert(newse);
 		
 		System.out.println("Inserted! New Id= " + newse.getId());
+		
+		
+		System.out.println("\n===TEST 5: Seller Update===");
+		
+		seller = sellerdao.findById(1);
+		
+		seller.setName("Marta");
+		seller.setEmail("marta@gmail.com");
+		sellerdao.update(seller);
+		System.out.println("Updated Completed");
 	}
 
 }

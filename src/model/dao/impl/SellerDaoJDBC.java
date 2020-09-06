@@ -27,49 +27,67 @@ public class SellerDaoJDBC implements SellerDao {
 	@Override
 	public void insert(Seller obj) {
 		PreparedStatement st = null;
-		
+
 		try {
-			st = conn.prepareStatement("INSERT INTO seller " + 
-					"(Name, Email, BirthDate, BaseSalary, DepartmentId) " + 
-					"VALUES " + 
-					"(?, ?, ?, ?, ?)",
-					Statement.RETURN_GENERATED_KEYS);//para retornar valor do obj criado
-			
+			st = conn.prepareStatement("INSERT INTO seller " + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES " + "(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);// para retornar valor do obj
+																						// criado
+
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
 			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
 			st.setDouble(4, obj.getBaseSalary());
 			st.setInt(5, obj.getDepartment().getId());
-			
-			
+
 			int rowsaffected = st.executeUpdate();
-			
-			if(rowsaffected > 0) {
+
+			if (rowsaffected > 0) {
 				ResultSet rs = st.getGeneratedKeys();
-				if(rs.next()) {
+				if (rs.next()) {
 					int id = rs.getInt(1);
-					obj.setId(id);//para que o obj ja fique populado com o id do obj criado
+					obj.setId(id);// para que o obj ja fique populado com o id do obj criado
 				}
 				DB.closeResultSet(rs);
-			}//Se cair aqui é porque houve um erro na inserção entao podemos escrever excepção
+			} // Se cair aqui é porque houve um erro na inserção entao podemos escrever
+				// excepção
 			else {
 				throw new DbException("Unexpected Error! No rows affected!");
 			}
-			
-		}
-		catch(SQLException e) {
+
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatment(st);
-		
+
 		}
 
 	}
 
 	@Override
 	public void update(Seller obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+
+		try {
+			st = conn.prepareStatement("UPDATE seller " + 
+					"SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " + 
+					"WHERE Id = ?");
+																					
+
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(6, obj.getId());
+
+			st.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatment(st);
+
+		}
 
 	}
 
@@ -133,7 +151,6 @@ public class SellerDaoJDBC implements SellerDao {
 		return se;
 	}
 
-
 	@Override
 	public List<Seller> findByDepartment(Department department) {
 
@@ -149,21 +166,22 @@ public class SellerDaoJDBC implements SellerDao {
 			rs = st.executeQuery();
 
 			List<Seller> selist = new ArrayList<>();
-			
-			Map<Integer,Department> map = new HashMap<>();
-			
+
+			Map<Integer, Department> map = new HashMap<>();
+
 			while (rs.next()) {
-				
+
 				Department dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) { //se der nulo é porque nao existe ainda entao eu crio para que na proxima vez ele va verificar ao map e veja que ja existe e entao não dará null na pesquisa
+
+				if (dep == null) { // se der nulo é porque nao existe ainda entao eu crio para que na proxima vez
+									// ele va verificar ao map e veja que ja existe e entao não dará null na
+									// pesquisa
 					dep = instantiateDepartment(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
-				
+
 				selist.add(instantiateSeller(rs, dep));
 
-				
 			}
 			return selist;// nao existia seller com este id
 		} catch (SQLException e) {
@@ -174,8 +192,7 @@ public class SellerDaoJDBC implements SellerDao {
 		}
 
 	}
-	
-	
+
 	public List<Seller> findAll() {
 
 		PreparedStatement st = null;
@@ -189,22 +206,24 @@ public class SellerDaoJDBC implements SellerDao {
 			rs = st.executeQuery();
 
 			List<Seller> selist = new ArrayList<>();
-			
-			Map<Integer,Department> map = new HashMap<>();
-			
+
+			Map<Integer, Department> map = new HashMap<>();
+
 			while (rs.next()) {
-				
+
 				Department dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) { //se der nulo é porque nao existe ainda entao eu crio para que na proxima vez ele va verificar ao map e veja que ja existe e entao não dará null na pesquisa
-									//se o dep existir entao aproveito ele, assim so teremos um objeto em memoria com os mesmos dados
+
+				if (dep == null) { // se der nulo é porque nao existe ainda entao eu crio para que na proxima vez
+									// ele va verificar ao map e veja que ja existe e entao não dará null na
+									// pesquisa
+									// se o dep existir entao aproveito ele, assim so teremos um objeto em memoria
+									// com os mesmos dados
 					dep = instantiateDepartment(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
-				
+
 				selist.add(instantiateSeller(rs, dep));
 
-				
 			}
 			return selist;// nao existia seller com este id
 		} catch (SQLException e) {
