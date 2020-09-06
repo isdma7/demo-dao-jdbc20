@@ -3,6 +3,7 @@ package application;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import model.dao.DaoFactory;
 import model.dao.SellerDao;
@@ -13,6 +14,8 @@ public class Program {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		Scanner sc = new Scanner(System.in);
 
 		Department obj = new Department(1, "Books");
 	
@@ -63,6 +66,19 @@ public class Program {
 		seller.setEmail("marta@gmail.com");
 		sellerdao.update(seller);
 		System.out.println("Updated Completed");
+		
+		System.out.println("\n===TEST 6: Seller Delete===");
+		
+		System.out.println("Enter id for delete test: ");
+		
+		int id = sc.nextInt();
+		
+		sellerdao.deleteById(id);
+		
+		System.out.println("Delete Completed with id= " + id);
+		
+		sc.close();
+		
 	}
 
 }
